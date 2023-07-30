@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String email;
+  final String insuranceNumber;
 
-  const ProfilePage({Key? key, required this.email}) : super(key: key);
+  const ProfilePage({Key? key, required this.insuranceNumber})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,6 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 20),
-            Text('Email: $email', style: TextStyle(fontSize: 20)),
             SizedBox(height: 10),
             Text('Nom: Alderson', style: TextStyle(fontSize: 20)),
             SizedBox(height: 10),

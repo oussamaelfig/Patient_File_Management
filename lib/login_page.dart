@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:patient_file_management/profile_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('Connexion'),
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -23,37 +22,36 @@ class _LoginPageState extends State<LoginPage> {
           key: _fbKey,
           child: ListView(
             children: <Widget>[
-              Image.asset('assets/images/login_image.png', height: 200),
               // Replace with your own image
               SizedBox(height: 20),
               FormBuilderTextField(
-                name: 'email',
+                name: 'insuranceNumber',
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Numero d\'assurance maladie',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  } else if (!EmailValidator.validate(value)) {
-                    return 'Please enter a valid email address';
+                    return 'Entrer votre Numero d\'assurance maladie';
+                  }
+                  RegExp regExp = RegExp(r'^[a-zA-Z]{4}[0-9]{8}$');
+                  if (!regExp.hasMatch(value)) {
+                    return 'Enter un numero d\'assurance maladie valide. \nIl doit etre compose de 4 lettres suivis de 8 chiffres';
                   }
                   return null;
                 },
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.name,
               ),
               SizedBox(height: 10),
               FormBuilderTextField(
-                name: 'password',
+                name: 'code',
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Code',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  } else if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                    return 'Entrer votre code numerique';
                   }
                   return null;
                 },
@@ -61,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                child: Text('Submit'),
+                child: Text('Entrer'),
                 style: ElevatedButton.styleFrom(
                   primary: Theme.of(context).primaryColor, // background
                   onPrimary: Colors.white, // foreground
@@ -74,7 +72,8 @@ class _LoginPageState extends State<LoginPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProfilePage(
-                          email: _fbKey.currentState!.value['email'],
+                          insuranceNumber:
+                              _fbKey.currentState!.value['insuranceNumber'],
                         ),
                       ),
                     );
