@@ -24,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
           key: _fbKey,
           child: ListView(
             children: <Widget>[
-              // Replace with your own image
               SizedBox(height: 20),
               FormBuilderTextField(
                 name: 'insuranceNumber',
@@ -66,19 +65,26 @@ class _LoginPageState extends State<LoginPage> {
                   primary: Theme.of(context).primaryColor, // background
                   onPrimary: Colors.white, // foreground
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_fbKey.currentState!.saveAndValidate()) {
-                    print(await validerInformationsBD(_fbKey.currentState!.value['insuranceNumber'],_fbKey.currentState!.value['code']));
-            
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfilePage(
-                          insuranceNumber:
-                              _fbKey.currentState!.value['insuranceNumber'],
+                    try {
+                      User user = await validerInformationsBD(
+                          _fbKey.currentState!.value['insuranceNumber'],
+                          int.parse(_fbKey.currentState!.value['code']));
+                      print(user);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfilePage(
+                            insuranceNumber:
+                                _fbKey.currentState!.value['insuranceNumber'],
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } catch (e) {
+                      print('Echec de validation du user: $e');
+                    }
                   }
                 },
               ),
@@ -89,36 +95,41 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<User> validerInformationsBD(String num_ass_medic, int code) async{
+  Future<User> validerInformationsBD(String num_ass_medic, int code) async {
     final response = await http.post(
-    Uri.parse('http://localhost:5000/login'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, int>{
-      'num_assurance_maladie': num_ass_medic,
-      'code': code,
-    }),
-  );
+      Uri.parse('http://localhost:5000/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'num_assurance_maladie': num_ass_medic,
+        'code': code,
+      }),
+    );
 
-  if (response.statusCode == 200) {
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Le numéro d\'assurance maladie/code invalide(s).');
-  }
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Le numéro d\'assurance maladie/code invalide(s).');
+    }
   }
 }
 
-class User{
+class User {
   final int id;
   final String nom;
   final String prenom;
   final String date_naissance;
   final String session;
 
-  const User({required this.id, required this.nom, required this.prenom, required this.date_naissance, required this.session});
+  const User(
+      {required this.id,
+      required this.nom,
+      required this.prenom,
+      required this.date_naissance,
+      required this.session});
 
-  factory User.fromJson(Map<String, dynamic> json){
+  factory User.fromJson(Map<String, dynamic> json) {
     return new User(
       id: json["id"],
       nom: json["nom"],
@@ -127,5 +138,4 @@ class User{
       session: json["session"],
     );
   }
-
 }
