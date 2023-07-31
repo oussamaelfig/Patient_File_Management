@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:patient_file_management/profile_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -66,8 +68,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () {
                   if (_fbKey.currentState!.saveAndValidate()) {
-                    print(_fbKey.currentState!.value);
-
+                    print(await validerInformationsBD(_fbKey.currentState!.value['insuranceNumber'],_fbKey.currentState!.value['code']));
+            
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -86,4 +88,44 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  Future<User> validerInformationsBD(String num_ass_medic, int code) async{
+    final response = await http.post(
+    Uri.parse('http://localhost:5000/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, int>{
+      'num_assurance_maladie': num_ass_medic,
+      'code': code,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return User.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Le numéro d\'assurance maladie/code invalide(s).');
+  }
+  }
+}
+
+class User{
+  final int id;
+  final String nom;
+  final String prenom;
+  final String date_naissance;
+  final String session;
+
+  const User({required this.id, required this.nom, required this.prenom, required this.date_naissance, required this.session});
+
+  factory User.fromJson(Map<String, dynamic> json){
+    return new User(
+      id: json["id"],
+      nom: json["nom"],
+      prenom: json["prenom"],
+      date_naissance: json["date_naissance"],
+      session: json["session"],
+    );
+  }
+
 }
