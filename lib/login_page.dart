@@ -57,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                   return null;
                 },
+                keyboardType: TextInputType.number,
                 obscureText: true,
               ),
               SizedBox(height: 20),
@@ -71,7 +72,8 @@ class _LoginPageState extends State<LoginPage> {
                     try {
                       User user = await validerInformationsBD(
                           _fbKey.currentState!.value['insuranceNumber'],
-                          int.parse(_fbKey.currentState!.value['code']));
+                          _fbKey.currentState!
+                              .value['code']); //pass code as String
                       print(user);
 
                       // Ici, on passe à la ProfilePage et on lui donne l'objet 'user'
@@ -94,17 +96,30 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<User> validerInformationsBD(String num_ass_medic, int code) async {
+  Future<User> validerInformationsBD(String num_ass_medic, String code) async {
+    // Convertir 'code' en integer
+    int codeAsInt;
+    try {
+      codeAsInt = int.parse(code);
+    } catch (e) {
+      print('Erreur lors de la conversion du code en nombre: $e');
+      throw Exception('Le code doit être un nombre.');
+    }
+
     final response = await http.post(
-      Uri.parse('http://localhost:5000/login'),
+      Uri.parse('http://10.0.2.2:5000/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
+      // Envoyer 'code' en tant que integer
       body: jsonEncode(<String, dynamic>{
         'num_assurance_maladie': num_ass_medic,
-        'code': code,
+        'code': codeAsInt,
       }),
     );
+
+    print("Statut de réponse: ${response.statusCode}"); // Ajout de debug
+    print("Corps de réponse: ${response.body}"); // Ajout de debug
 
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
