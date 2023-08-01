@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:patient_file_management/profile_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:patient_file_management/user.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -73,13 +74,11 @@ class _LoginPageState extends State<LoginPage> {
                           int.parse(_fbKey.currentState!.value['code']));
                       print(user);
 
+                      // Ici, on passe à la ProfilePage et on lui donne l'objet 'user'
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProfilePage(
-                            insuranceNumber:
-                                _fbKey.currentState!.value['insuranceNumber'],
-                          ),
+                          builder: (context) => ProfilePage(user: user),
                         ),
                       );
                     } catch (e) {
@@ -112,30 +111,5 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       throw Exception('Le numéro d\'assurance maladie/code invalide(s).');
     }
-  }
-}
-
-class User {
-  final int id;
-  final String nom;
-  final String prenom;
-  final String date_naissance;
-  final String session;
-
-  const User(
-      {required this.id,
-      required this.nom,
-      required this.prenom,
-      required this.date_naissance,
-      required this.session});
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return new User(
-      id: json["id"],
-      nom: json["nom"],
-      prenom: json["prenom"],
-      date_naissance: json["date_naissance"],
-      session: json["session"],
-    );
   }
 }
